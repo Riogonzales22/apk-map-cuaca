@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Prakiraan Cuaca Kecamatan Klojen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e0f7fa;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #0288d1;
+            color: white;
+        }
+        .error {
+            text-align: center;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Prakiraan Cuaca Kecamatan Klojen (3 Hari)</h1>
+
+<div id="cuaca-container">
+    <p class="error" id="error-message" style="display: none;">Gagal mengambil data cuaca. Cek koneksi internet Anda.</p>
+    <table id="cuaca-table" style="display: none;">
+        <thead>
+            <tr>
+                <th>Tanggal</th>
+                <th>Max Temp (°C)</th>
+                <th>Min Temp (°C)</th>
+                <th>Curah Hujan (mm)</th>
+            </tr>
+        </thead>
+        <tbody id="cuaca-body">
+            <!-- Data dari API akan dimasukkan di sini -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+// URL API Open-Meteo untuk Kecamatan Klojen
+const apiUrl = "https://api.open-meteo.com/v1/forecast?latitude=-7.973&longitude=112.6087&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Asia%2FBangkok&forecast_days=3";
+
+// Ambil data cuaca dengan fetch API
+fetch(apiUrl)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Gagal mengambil data cuaca.");
+        }
+        return response.json();
+    })
+    .then(data => {
+        const table = document.getElementById('cuaca-table');
+        const tbody = document.getElementById('cuaca-body');
+        table.style.display = 'table';
+
+        const dates = data.daily.time;
+        const tempMax = data.daily.temperature_2m_max;
+        const tempMin = data.daily.temperature_2m_min;
+        const precipitation = data.daily.precipitation_sum;
+
+        // Loop data 3 hari ke dalam tabel
+        for (let i = 0; i < dates.length; i++) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${dates[i]}</td>
+                <td>${tempMax[i]}°C</td>
+                <td>${tempMin[i]}°C</td>
+                <td>${precipitation[i]} mm</td>
+            `;
+            tbody.appendChild(row);
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        document.getElementById('error-message').style.display = 'block';
+    });
+</script>
+
+</body>
+</html>
